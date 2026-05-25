@@ -1,8 +1,9 @@
 package com.manish.vercelclone.controller;
 
+import com.manish.vercelclone.dto.UserRegistrationRequest;
 import com.manish.vercelclone.entity.User;
 import com.manish.vercelclone.service.UserService;
-import org.springframework.stereotype.Controller;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody User user){
+    public User register(@Valid @RequestBody UserRegistrationRequest user){
       return  usr.registerUsers(user);
     }
 }

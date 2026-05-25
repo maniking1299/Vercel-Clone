@@ -5,6 +5,7 @@ import com.manish.vercelclone.dto.CreateDeploymentRequest;
 import com.manish.vercelclone.entity.Deployment;
 import com.manish.vercelclone.entity.User;
 import com.manish.vercelclone.service.DeploymentService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class DeploymentController {
     }
 
     @PostMapping()
-    public Deployment createDeploy(@RequestBody CreateDeploymentRequest req,@RequestParam Long userId){
+    public Deployment createDeploy(@Valid @RequestBody CreateDeploymentRequest req, @RequestParam Long userId){
       return deploy.createDeployment(req.getGitHubUrl(),req.getCommand(),req.getOpDir(),userId);
     }
 
