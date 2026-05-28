@@ -2,6 +2,8 @@ package com.manish.vercelclone;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootApplication
 public class VercelcloneApplication {
@@ -10,4 +12,11 @@ public class VercelcloneApplication {
 		SpringApplication.run(VercelcloneApplication.class, args);
 	}
 
+
+	@Bean
+	public BCryptPasswordEncoder obj(){
+
+		return new BCryptPasswordEncoder();
+	}
 }
+

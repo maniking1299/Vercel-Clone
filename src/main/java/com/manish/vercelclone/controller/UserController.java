@@ -1,5 +1,6 @@
 package com.manish.vercelclone.controller;
 
+import com.manish.vercelclone.dto.UserLoginRequest;
 import com.manish.vercelclone.dto.UserRegistrationRequest;
 import com.manish.vercelclone.entity.User;
 import com.manish.vercelclone.service.UserService;
@@ -23,5 +24,12 @@ public class UserController {
     @PostMapping("/register")
     public User register(@Valid @RequestBody UserRegistrationRequest user){
       return  usr.registerUsers(user);
+    }
+
+    @PostMapping("/login")
+    public User login(@Valid @RequestBody UserLoginRequest user){
+        String email = user.getEmail();
+        String pass = user.getPassword();
+        return usr.login(email,pass);
     }
 }
