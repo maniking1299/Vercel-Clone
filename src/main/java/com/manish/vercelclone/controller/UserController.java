@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public User login(@Valid @RequestBody UserLoginRequest user){
+    public String login(@Valid @RequestBody UserLoginRequest user){
         String email = user.getEmail();
         String pass = user.getPassword();
         return usr.login(email,pass);
