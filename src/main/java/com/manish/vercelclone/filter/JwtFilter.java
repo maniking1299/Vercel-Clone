@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 @Component
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwt;
@@ -24,6 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
     @Override
+
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader=request.getHeader("Authorization");
 
@@ -37,13 +40,8 @@ public class JwtFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-//                if(b) {
-//                    UsernamePasswordAuthenticationToken authToken =
-//                            new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
-//                    SecurityContextHolder.getContext().setAuthentication(authToken);
-//                }
             } catch (Exception e) {
-                System.out.println("JWT Error: " + e.getMessage());
+               log.error("Jwt Error :{}",e.getMessage());
             }
         }
         filterChain.doFilter(request, response);
