@@ -2,6 +2,7 @@ package com.manish.vercelclone.service;
 
 import com.manish.vercelclone.entity.Deployment;
 import com.manish.vercelclone.entity.User;
+import com.manish.vercelclone.queue.DeploymentQueue;
 import com.manish.vercelclone.repo.DeploymentRepo;
 import com.manish.vercelclone.repo.UserRepo;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,13 @@ public class DeploymentService {
 
     private final DeploymentRepo deploy;
     private final UserRepo usr;
+    private final DeploymentQueue dpQueue;
 
 
-    public DeploymentService(DeploymentRepo deploy, UserRepo usr) {
+    public DeploymentService(DeploymentRepo deploy, UserRepo usr, DeploymentQueue dpQueue) {
         this.deploy = deploy;
         this.usr = usr;
+        this.dpQueue = dpQueue;
     }
 
     public Deployment createDeployment(String url, String command, String optDir, Long userId) {
@@ -27,7 +30,9 @@ public class DeploymentService {
        d.setOutputDir(optDir);
        User user = usr.findById(userId).orElse(null);
        d.setUser(user);
-        return deploy.save(d);
+      Deployment saved = deploy.save(d);
+      dpQueue.addDeployment(saved.getId());
+      return saved;
     }
 
     public Deployment getDeployment(Long id){
