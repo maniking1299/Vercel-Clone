@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDeploy — New Deployment</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+        }
+        nav {
+            border-bottom: 1px solid #222;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 20px; font-weight: 700; }
+        .logo span { color: #00ff88; }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .btn-ghost { background: transparent; color: #888; border: 1px solid #333; }
+        .btn:hover { opacity: 0.85; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        .back {
+            color: #555;
+            font-size: 13px;
+            cursor: pointer;
+            margin-bottom: 24px;
+            display: inline-block;
+        }
+        .back:hover { color: #888; }
+        h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+        .subtitle { color: #555; font-size: 14px; margin-bottom: 32px; }
+        .card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 32px;
+        }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+        .label-hint { font-size: 11px; color: #444; margin-left: 8px; }
+        input {
+            width: 100%;
+            padding: 10px 14px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: #00ff88; }
+        input::placeholder { color: #444; }
+        .divider {
+            border: none;
+            border-top: 1px solid #222;
+            margin: 24px 0;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .status-box {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+        .status-box.queued { background: #1a1a2e; color: #6666ff; border: 1px solid #333366; }
+        .status-box.success { background: #001a0a; color: #00ff88; border: 1px solid #004422; }
+        .status-box.error { background: #1a0000; color: #ff4444; border: 1px solid #440000; }
+        .status-box h4 { font-size: 14px; margin-bottom: 4px; }
+        .status-box a { color: #00ff88; text-decoration: none; }
+        .status-box a:hover { text-decoration: underline; }
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #333;
+            border-top-color: #00ff88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+<nav>
+    <div class="logo">▲ V<span>Deploy</span></div>
+    <button class="btn btn-ghost" onclick="logout()">Logout</button>
+</nav>
+
+<div class="container">
+    <span class="back" onclick="window.location.href='/dashboard.html'">← Back to Dashboard</span>
+    <h2>New Deployment</h2>
+    <p class="subtitle">Deploy your GitHub repository to the cloud</p>
+
+    <div class="card">
+        <div class="form-group">
+            <label>GitHub Repository URL <span class="label-hint">public repos only</span></label>
+            <input type="text" id="githubUrl" placeholder="https://github.com/username/repo">
+        </div>
+        <div class="form-group">
+            <label>Build Command <span class="label-hint">leave empty for static sites</span></label>
+            <input type="text" id="buildCommand" placeholder="npm install && npm run build" value="echo done">
+        </div>
+        <div class="form-group">
+            <label>Output Directory <span class="label-hint">folder containing index.html</span></label>
+            <input type="text" id="outputDir" placeholder="dist" value=".">
+        </div>
+
+        <hr class="divider">
+
+        <button class="btn-primary" id="deployBtn" onclick="deploy()">
+            Deploy Project
+        </button>
+
+        <div class="status-box" id="statusBox"></div>
+    </div>
+</div>
+
+<script>
+    const token = sessionStorage.getItem('token');
+    const userId = sessionStorage.getItem('userId');
+    if (!token) window.location.href = '/index.html';
+
+    let deploymentId = null;
+    let pollInterval = null;
+
+    async function deploy() {
+        const githubUrl = document.getElementById('githubUrl').value.trim();
+        const buildCommand = document.getElementById('buildCommand').value.trim();
+        const outputDir = document.getElementById('outputDir').value.trim();
+
+        if (!githubUrl) {
+            showStatus('error', 'Please enter a GitHub repository URL');
+            return;
+        }
+
+        const btn = document.getElementById('deployBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Deploying...';
+
+        try {
+            const res = await fetch(`/deploy?userId=${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    gitHubUrl: githubUrl,
+                    command: buildCommand,
+                    opDir: outputDir
+                })
+            });
+
+            if (!res.ok) throw new Error('Deployment failed');
+            const deployment = await res.json();
+            deploymentId = deployment.id;
+
+            showStatus('queued', `<h4><span class="spinner"></span> Deployment queued</h4><p>Building your project... this may take a minute.</p>`);
+            pollInterval = setInterval(pollStatus, 3000);
+
+        } catch (e) {
+            showStatus('error', '<h4>Deployment failed</h4><p>Please check your repository URL and try again.</p>');
+            btn.disabled = false;
+            btn.innerHTML = 'Deploy Project';
+        }
+    }
+
+    async function pollStatus() {
+        try {
+            const res = await fetch(`/deploy/${deploymentId}`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const deployment = await res.json();
+
+            if (deployment.status === 'SUCCESS') {
+                clearInterval(pollInterval);
+                const url = deployment.deployedUrl + '/index.html';
+                showStatus('success', `
+                        <h4>✓ Deployed successfully!</h4>
+                        <p style="margin-top:8px">
+                            <a href="${url}" target="_blank">${url} →</a>
+                        </p>
+                    `);
+                document.getElementById('deployBtn').disabled = false;
+                document.getElementById('deployBtn').innerHTML = 'Deploy Another';
+            } else if (deployment.status === 'FAILED') {
+                clearInterval(pollInterval);
+                showStatus('error', '<h4>Build failed</h4><p>Check your build command and try again.</p>');
+                document.getElementById('deployBtn').disabled = false;
+                document.getElementById('deployBtn').innerHTML = 'Try Again';
+            }
+        } catch (e) {
+            clearInterval(pollInterval);
+        }
+    }
+
+    function showStatus(type, html) {
+        const box = document.getElementById('statusBox');
+        box.className = 'status-box ' + type;
+        box.innerHTML = html;
+        box.style.display = 'block';
+    }
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.href = '/index.html';
+    }
+</script>
+</body>
+</html>

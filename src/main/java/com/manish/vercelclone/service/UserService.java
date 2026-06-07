@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @Slf4j
 public class UserService {
@@ -36,21 +39,20 @@ public class UserService {
        return usr.save(user);
     }
 
-    public String login(String email, String pass){
-
-      User user =  usr.findByEmail(email);
-        if(user==null){
+    public Map<String, Object> login(String email, String pass) {
+        User user = usr.findByEmail(email);
+        if (user == null) {
             log.warn("No User Found");
             return null;
         }
-
-        if(!hashing.matches(pass,user.getPassword())){
+        if (!hashing.matches(pass, user.getPassword())) {
             log.warn("Incorrect Password");
             return null;
         }
-
-        log.info("Login Sucessfull");
-        return jwtUtil.generateToken(user.getEmail());
-
+        log.info("Login Successful");
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", jwtUtil.generateToken(user.getEmail()));
+        response.put("userId", user.getId());
+        return response;
     }
 }

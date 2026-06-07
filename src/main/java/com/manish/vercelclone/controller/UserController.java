@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/users")
@@ -27,9 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@Valid @RequestBody UserLoginRequest user){
-        String email = user.getEmail();
-        String pass = user.getPassword();
-        return usr.login(email,pass);
+    public Map<String, Object> login(@Valid @RequestBody UserLoginRequest user) {
+        return usr.login(user.getEmail(), user.getPassword());
     }
 }

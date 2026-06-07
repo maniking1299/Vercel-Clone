@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDeploy — Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+        }
+        nav {
+            border-bottom: 1px solid #222;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 20px; font-weight: 700; }
+        .logo span { color: #00ff88; }
+        .nav-right { display: flex; gap: 12px; align-items: center; }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .btn-primary { background: #00ff88; color: #000; }
+        .btn-ghost { background: transparent; color: #888; border: 1px solid #333; }
+        .btn:hover { opacity: 0.85; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        h2 { font-size: 22px; font-weight: 600; }
+        .empty {
+            text-align: center;
+            padding: 80px 20px;
+            color: #444;
+        }
+        .empty h3 { font-size: 18px; margin-bottom: 8px; color: #666; }
+        .deployment-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: border-color 0.2s;
+        }
+        .deployment-card:hover { border-color: #333; }
+        .dep-left h3 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+        .dep-left p { font-size: 12px; color: #555; }
+        .dep-right { display: flex; align-items: center; gap: 12px; }
+        .status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status.QUEUED { background: #1a1a2e; color: #6666ff; }
+        .status.RUNNING { background: #1a1a00; color: #ffff00; }
+        .status.SUCCESS { background: #001a0a; color: #00ff88; }
+        .status.FAILED { background: #1a0000; color: #ff4444; }
+        .visit-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .visit-btn:hover { border-color: #00ff88; color: #00ff88; }
+        .loading { text-align: center; padding: 60px; color: #444; }
+    </style>
+</head>
+<body>
+<nav>
+    <div class="logo">▲ V<span>Deploy</span></div>
+    <div class="nav-right">
+        <button class="btn btn-ghost" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h2>My Deployments</h2>
+        <button class="btn btn-primary" onclick="window.location.href='/deploy.html'">
+            + New Deployment
+        </button>
+    </div>
+    <div id="deploymentsList">
+        <div class="loading">Loading deployments...</div>
+    </div>
+</div>
+
+<script>
+    const token = sessionStorage.getItem('token');
+    if (!token) window.location.href = '/index.html';
+
+    function parseJwt(token) {
+        const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(atob(base64));
+    }
+
+    function getUserId() {
+        // We'll get userId from the first deployment or store it at login
+        return sessionStorage.getItem('userId');
+    }
+
+    async function loadDeployments() {
+        const userId = sessionStorage.getItem('userId');
+        if (!userId) {
+            document.getElementById('deploymentsList').innerHTML =
+                '<div class="empty"><h3>No deployments yet</h3><p>Create your first deployment</p></div>';
+            return;
+        }
+        try {
+            const res = await fetch(`/deploy/user/${userId}`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const deployments = await res.json();
+            renderDeployments(deployments);
+        } catch (e) {
+            document.getElementById('deploymentsList').innerHTML =
+                '<div class="empty"><h3>Failed to load deployments</h3></div>';
+        }
+    }
+
+    function renderDeployments(deployments) {
+        const container = document.getElementById('deploymentsList');
+        if (!deployments || deployments.length === 0) {
+            container.innerHTML = '<div class="empty"><h3>No deployments yet</h3><p>Click "New Deployment" to get started</p></div>';
+            return;
+        }
+        container.innerHTML = deployments.reverse().map(d => `
+                <div class="deployment-card">
+                    <div class="dep-left">
+                        <h3>${d.githubUrl.split('/').pop()}</h3>
+                        <p>${d.githubUrl} • ${new Date(d.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="dep-right">
+                        <span class="status ${d.status}">${d.status}</span>
+                        ${d.deployedUrl ? `<a class="visit-btn" href="${d.deployedUrl}/index.html" target="_blank">Visit →</a>` : ''}
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.href = '/index.html';
+    }
+
+    loadDeployments();
+</script>
+</body>
+</html>
