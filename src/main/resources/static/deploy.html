@@ -126,11 +126,13 @@
     <span class="back" onclick="window.location.href='/dashboard.html'">← Back to Dashboard</span>
     <h2>New Deployment</h2>
     <p class="subtitle">Deploy your GitHub repository to the cloud</p>
-
     <div class="card">
         <div class="form-group">
             <label>GitHub Repository URL <span class="label-hint">public repos only</span></label>
             <input type="text" id="githubUrl" placeholder="https://github.com/username/repo">
+            <p style="font-size:11px; color:#444; margin-top:4px;">
+                Your output directory must contain an index.html file
+            </p>
         </div>
         <div class="form-group">
             <label>Build Command <span class="label-hint">leave empty for static sites</span></label>
