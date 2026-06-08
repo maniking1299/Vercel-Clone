@@ -39,7 +39,7 @@ public class DeploymentWorker {
                     if (dp == null) {
                         continue;
                     }
-                    String tempDir = "D:/deployments/deployment-" + dp.getId();
+                   String tempDir = "/tmp/deployments/deployment-" + dp.getId();
 
                     dp.setStatus(DeploymentStatus.RUNNING);
                     dpRepo.save(dp);
