@@ -205,6 +205,21 @@ sudo systemctl status vercelclone
 <img width="898" height="799" alt="Screenshot 2026-06-09 095641" src="https://github.com/user-attachments/assets/07c69b48-ee44-4ea4-95ed-48829188aa36" />
 
 ---
+## ⚠️ Browser Security Warning
+
+When opening the live platform link, your browser may show a "Not Secure" 
+or "Dangerous Site" warning. This is expected — the server runs on a raw 
+EC2 IP address without HTTPS configured. The application is completely safe.
+
+This happens because:
+- The server uses HTTP (port 8080) instead of HTTPS
+- No SSL certificate is installed yet
+- Browsers flag all HTTP sites as "not secure" by default
+
+**To proceed:** Click "Advanced" → "Proceed anyway" (Chrome) or 
+"Accept the Risk" (Firefox).
+
+---
 
 ## What I Learned
 
