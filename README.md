@@ -192,15 +192,17 @@ sudo systemctl status vercelclone
 
 **Login Page**
 
-![img.png](img.png)
+<img width="1835" height="935" alt="Screenshot 2026-06-09 095536" src="https://github.com/user-attachments/assets/12250d3d-af99-4d14-94a6-50a2f2fa7854" />
+
 
 **Dashboard**
 
-![img_1.png](img_1.png)
+<img width="1913" height="911" alt="Screenshot 2026-06-09 095620" src="https://github.com/user-attachments/assets/ee30c3a9-1800-4342-a6a6-ae5b6a9a6c09" />
+
 
 **Deploy Form**
 
-![img_2.png](img_2.png)
+<img width="898" height="799" alt="Screenshot 2026-06-09 095641" src="https://github.com/user-attachments/assets/07c69b48-ee44-4ea4-95ed-48829188aa36" />
 
 ---
 
