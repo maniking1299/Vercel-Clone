@@ -204,6 +204,11 @@ sudo systemctl status vercelclone
 
 <img width="898" height="799" alt="Screenshot 2026-06-09 095641" src="https://github.com/user-attachments/assets/07c69b48-ee44-4ea4-95ed-48829188aa36" />
 
+**Demo**
+
+https://github.com/user-attachments/assets/77327b93-85c9-413a-84cc-6469bd4f48f9
+
+
 ---
 ## ⚠️ Browser Security Warning
 
