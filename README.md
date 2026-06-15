@@ -6,7 +6,7 @@ A simplified deployment platform built from scratch in Java. Users submit a GitH
 
 **My Portfolio:** [https://vercel-clone-manish.s3.ap-south-1.amazonaws.com/deployments/7/index.html](https://vercel-clone-manish.s3.ap-south-1.amazonaws.com/deployments/7/index.html)
 
-**Live Server:** [http://13.235.27.137:8080](http://13.235.27.137:8080)
+**Live Server:** [http://13.235.27.137:8080]((http://13.205.234.35:8080))
 
 ---
 
